@@ -1,4 +1,3 @@
-<!-- books/templates/books/book_list.html -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -80,7 +79,7 @@
 
 <body>
     <h1>Список книг</h1>
-    <a href="{% url 'book_create' %}">Добавить новую книгу</a>
+    <a href="{% url 'book_create' %}?page={{ books.number }}">Добавить новую книгу</a>
     <table>
         <thead>
             <tr>
@@ -98,7 +97,7 @@
                 <td>{{ book.price }}</td>
                 <td>
                     <a href="{% url 'book_update' book.pk %}">Изменить</a>
-                    <form action="{% url 'book_delete' book.pk %}" method="post" style="display:inline;">
+                    <form action="{% url 'book_delete' book.pk %}" method="delete" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit">Удалить</button>
                     </form>
@@ -108,7 +107,6 @@
         </tbody>
     </table>
 
-    <!-- Пагинация -->
     <div class="pagination">
         <span class="step-links">
             {% if books.has_previous %}

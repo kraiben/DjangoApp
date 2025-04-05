@@ -1,16 +1,16 @@
-<!-- books/templates/books/book_confirm_delete.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Удалить книгу</title>
+    <title>Удаление книги</title>
 </head>
 <body>
-    <h1>Удалить книгу "{{ book.title }}"?</h1>
+    <h1>Удаление книги</h1>
+    <p>Вы уверены, что хотите удалить книгу "{{ book.name }}"?</p>
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Да, удалить</button>
-        <a href="{% url 'book_list' %}">Отмена</a>
+        <button type="submit">Удалить</button>
+        <a href="{% url 'book_list' %}?page={{ from_page }}">Отмена</a>
     </form>
 </body>
 </html>
