@@ -74,19 +74,88 @@
             color: white;
             border: 1px solid #007bff;
         }
+        .auth-buttons {
+            margin: 20px 0;
+            text-align: right;
+        }
+        
+        .auth-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: white !important;
+            text-decoration: none !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            margin-left: 10px;
+        }
+        
+        .login-btn {
+            background-color: #28a745; /* Зеленый */
+        }
+        
+        .login-btn:hover {
+            background-color: #218838; /* Темно-зеленый */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logout-btn {
+            background-color: #dc3545; /* Красный */
+        }
+        
+        .logout-btn:hover {
+            background-color: #c82333; /* Темно-красный */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .register-btn {
+            background-color: #17a2b8; /* Голубой */
+        }
+        
+        .register-btn:hover {
+            background-color: #138496; /* Темно-голубой */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .user-greeting {
+            color: #333;
+            font-weight: 500;
+            margin-right: 10px;
+        }
     </style>
 </head>
 
 <body>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+            <span class="user-greeting">Вы вошли как: <strong>{{ user.username }}</strong></span>
+            <a href="{% url 'logout' %}" class="auth-btn logout-btn">Выйти</a>
+        {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="auth-btn login-btn">Войти</a>
+            <a href="{% url 'register' %}" class="auth-btn register-btn">Регистрация</a>
+        {% endif %}
+    </div>
+
     <h1>Список книг</h1>
-    <a href="{% url 'book_create' %}?page={{ books.number }}">Добавить новую книгу</a>
+    {% if user.is_authenticated %}
+        <a href="{% url 'book_create' %}?page={{ books.number }}">Добавить новую книгу</a>
+    {% endif %}
+    
     <table>
         <thead>
             <tr>
                 <th>Название</th>
                 <th>Автор</th>
                 <th>Цена</th>
-                <th>Действия</th>
+                {% if user.is_authenticated and user.is_admin %}
+                    <th>Действия</th>
+                {% endif %}
             </tr>
         </thead>
         <tbody>
@@ -95,13 +164,15 @@
                 <td>{{ book.name }}</td>
                 <td>{{ book.author }}</td>
                 <td>{{ book.price }}</td>
-                <td>
-                    <a href="{% url 'book_update' book.pk %}">Изменить</a>
-                    <form action="{% url 'book_delete' book.pk %}" method="delete" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit">Удалить</button>
-                    </form>
-                </td>
+                {% if user.is_authenticated and user.is_admin %}
+                    <td>
+                        <a href="{% url 'book_update' book.pk %}?page={{ books.number }}">Изменить</a>
+                        <form action="{% url 'book_delete' book.pk %}?page={{ books.number }}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Удалить</button>
+                        </form>
+                    </td>
+                {% endif %}
             </tr>
             {% endfor %}
         </tbody>

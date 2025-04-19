@@ -1,6 +1,6 @@
 
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
@@ -77,9 +77,25 @@ class Books(models.Model):
     price = models.IntegerField(blank=True, null=True)
 
     class Meta:
-        managed = False
+        # managed = False
         db_table = 'books'
 
+
+class User(AbstractUser):
+    ROLES = (
+        ('user', 'Обычный пользователь'),
+        ('admin', 'Администратор'),
+    )
+    role = models.CharField(max_length=10, choices=ROLES, default='user')
+    
+    class Meta:
+        db_table = 'auth_user'
+    
+    def __str__(self):
+        return self.username
+    
+    def is_admin(self):
+        return self.role == 'admin' or self.is_superuser
 
 class DjangoAdminLog(models.Model):
     action_time = models.DateTimeField()
