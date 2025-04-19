@@ -27,6 +27,10 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+AUTH_USER_MODEL = 'echo.User'
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'book_list'
+LOGOUT_REDIRECT_URL = 'book_list'
 
 # Application definition
 
@@ -81,7 +85,10 @@ DATABASES = {
         'USER': 'root',
         'PASSWORD': 'lsaroes',
         'HOST': 'localhost',
-        'PORT': '3306'
+        'PORT': '3306',
+        'OPTIONS': {
+            'init_command': "SET foreign_key_checks = 0;",
+        }
     }
 }
 

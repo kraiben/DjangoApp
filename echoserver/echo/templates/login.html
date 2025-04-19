@@ -1,10 +1,43 @@
-{% extends 'base.html' %}
-
-{% block content %}
-<h2>Вход</h2>
-<form method="post">
+<form method="post" class="auth-form">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Войти</button>
-</form>
-{% endblock %}
+    
+    <div class="form-group mb-4">  <!-- Увеличенный отступ снизу -->
+      {{ form.username.label_tag }}
+      {{ form.username }}
+      {% if form.username.errors %}
+        <div class="text-danger mt-2">{{ form.username.errors }}</div>  <!-- Отступ сверху для ошибок -->
+      {% endif %}
+    </div>
+    
+    <div class="form-group mb-4">  <!-- Увеличенный отступ снизу -->
+      {{ form.password.label_tag }}
+      {{ form.password }}
+      {% if form.password.errors %}
+        <div class="text-danger mt-2">{{ form.password.errors }}</div>  <!-- Отступ сверху для ошибок -->
+      {% endif %}
+    </div>
+    
+    <button type="submit" class="btn btn-primary mt-3 w-100 py-2">Войти</button>  <!-- Отступ сверху и увеличенная высота кнопки -->
+  </form>
+  
+  <style>
+    .auth-form {
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    
+    .form-group {
+      margin-bottom: 1.5rem;  /* Еще больше отступ при необходимости */
+    }
+    
+    .form-control {
+      margin-top: 0.5rem;  /* Отступ между лейблом и полем ввода */
+      padding: 0.75rem 1rem;  /* Увеличенный внутренний отступ */
+      height: calc(2.5rem + 2px);  /* Увеличенная высота поля */
+    }
+    
+    .btn-primary {
+      font-size: 1.1rem;
+      letter-spacing: 0.5px;
+    }
+  </style>
