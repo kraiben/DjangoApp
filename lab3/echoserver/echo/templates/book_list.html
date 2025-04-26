@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Список книг</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th,
+        td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        a {
+            text-decoration: none;
+            color: #007bff;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        button {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #c82333;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 8px 16px;
+            text-decoration: none;
+            border: 1px solid #ddd;
+            color: #007bff;
+            margin: 0 4px;
+        }
+
+        .pagination a:hover {
+            background-color: #f2f2f2;
+        }
+
+        .pagination .current {
+            background-color: #007bff;
+            color: white;
+            border: 1px solid #007bff;
+        }
+        .auth-buttons {
+            margin: 20px 0;
+            text-align: right;
+        }
+        
+        .auth-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            color: white !important;
+            text-decoration: none !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+            text-align: center;
+            margin-left: 10px;
+        }
+        
+        .login-btn {
+            background-color: #28a745; /* Зеленый */
+        }
+        
+        .login-btn:hover {
+            background-color: #218838; /* Темно-зеленый */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .logout-btn {
+            background-color: #dc3545; /* Красный */
+        }
+        
+        .logout-btn:hover {
+            background-color: #c82333; /* Темно-красный */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .register-btn {
+            background-color: #17a2b8; /* Голубой */
+        }
+        
+        .register-btn:hover {
+            background-color: #138496; /* Темно-голубой */
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .user-greeting {
+            color: #333;
+            font-weight: 500;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+            <span class="user-greeting">Вы вошли как: <strong>{{ user.username }}</strong></span>
+            <a href="{% url 'logout' %}" class="auth-btn logout-btn">Выйти</a>
+        {% else %}
+            <a href="{% url 'login' %}?next={{ request.path }}" class="auth-btn login-btn">Войти</a>
+            <a href="{% url 'register' %}" class="auth-btn register-btn">Регистрация</a>
+        {% endif %}
+    </div>
+
+    <h1>Список книг</h1>
+    {% if user.is_authenticated %}
+        <a href="{% url 'book_create' %}?page={{ books.number }}">Добавить новую книгу</a>
+    {% endif %}
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Автор</th>
+                <th>Цена</th>
+                {% if user.is_authenticated and user.is_admin %}
+                    <th>Действия</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book.name }}</td>
+                <td>{{ book.author }}</td>
+                <td>{{ book.price }}</td>
+                {% if user.is_authenticated and user.is_admin %}
+                    <td>
+                        <a href="{% url 'book_update' book.pk %}?page={{ books.number }}">Изменить</a>
+                        <form action="{% url 'book_delete' book.pk %}?page={{ books.number }}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit">Удалить</button>
+                        </form>
+                    </td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <span class="step-links">
+            {% if books.has_previous %}
+            <a href="?page=1">&laquo; первая</a>
+            <a href="?page={{ books.previous_page_number }}">предыдущая</a>
+            {% endif %}
+
+            <span class="current">
+                Страница {{ books.number }} из {{ books.paginator.num_pages }}.
+            </span>
+
+            {% if books.has_next %}
+            <a href="?page={{ books.next_page_number }}">следующая</a>
+            <a href="?page={{ books.paginator.num_pages }}">последняя &raquo;</a>
+            {% endif %}
+        </span>
+    </div>
+</body>
+
+</html>
