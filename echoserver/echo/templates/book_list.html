@@ -171,6 +171,13 @@
                             {% csrf_token %}
                             <button type="submit">Удалить</button>
                         </form>
+                        <form method="post" action="{% url 'add_to_cart' book.id %}">
+                            {% csrf_token %}
+                            <div class="input-group mb-3">
+                                <input type="number" name="quantity" value="1" min="1" class="form-control" style="width: 60px;">
+                                <button type="submit" class="btn btn-primary">В корзину</button>
+                            </div>
+                        </form>
                     </td>
                 {% endif %}
             </tr>

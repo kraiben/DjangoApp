@@ -1,0 +1,23 @@
+<ul class="navbar-nav">
+    {% if user.is_authenticated %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'profile' %}">Личный кабинет</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'cart' %}">Корзина</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'order_list' %}">Мои заказы</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'logout' %}">Выйти</a>
+    </li>
+    {% else %}
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'login' %}">Войти</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'register' %}">Регистрация</a>
+    </li>
+    {% endif %}
+</ul>

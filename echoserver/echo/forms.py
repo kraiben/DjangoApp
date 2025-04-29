@@ -1,5 +1,5 @@
 from django import forms
-from .models import Books, User
+from .models import Books, User, CartItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -45,3 +45,26 @@ class LoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'user_name']
+        labels = {
+            'username': 'Логин',
+            'email': 'Email',
+            'first_name': 'Имя'
+        }
+
+class AddToCartForm(forms.ModelForm):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
+        widgets = {
+            'quantity': forms.NumberInput(attrs={
+                'min': 1,
+                'value': 1,
+                'class': 'form-control',
+                'style': 'width: 60px;'
+            })
+        }
