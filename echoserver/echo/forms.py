@@ -1,5 +1,5 @@
 from django import forms
-from .models import Books, User
+from .models import Books, User, CartItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -26,7 +26,7 @@ class RegisterForm(UserCreationForm):
         self.fields['username'].label = 'Login'
         self.fields['first_name'].label = 'Name'
         self.fields['username'].widget.attrs.update({'placeholder': 'Enter your login'})
-        self.fields['user_name'].widget.attrs.update({'placeholder': 'Enter your name'})
+        self.fields['first_name'].widget.attrs.update({'placeholder': 'Enter your name'})
 
 
 class LoginForm(AuthenticationForm):
@@ -47,3 +47,18 @@ class LoginForm(AuthenticationForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name']
+        labels = {
+            'username': 'Login',
+            'first_name': 'Name',
+        }
+
+class CartItemForm(forms.ModelForm):
+    class Meta:
+        model = CartItem
+        fields = ['quantity']
