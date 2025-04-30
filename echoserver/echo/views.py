@@ -1,12 +1,90 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import Books
-from .forms import BookForm, RegisterForm, LoginForm
+from .models import Books, Cart, CartItem, Order, OrderItem
+from .forms import BookForm, RegisterForm, LoginForm, UserProfileForm, CartItemForm
 from django.core.paginator import Paginator
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.contrib import messages
+
+@login_required
+def profile_view(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Ваш профиль успешно обновлен!')
+            return redirect('profile')
+    else:
+        form = UserProfileForm(instance=request.user)
+    
+    return render(request, 'profile.html', {'form': form})
+
+@login_required
+def add_to_cart(request, book_id):
+    book = get_object_or_404(Books, id=book_id)
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        book=book,
+        defaults={'quantity': 1}
+    )
+    
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+    
+    messages.success(request, f'Книга "{book.name}" добавлена в корзину')
+    return redirect('book_list')
+
+@login_required
+def cart_view(request):
+    cart, created = Cart.objects.get_or_create(user=request.user)
+    cart_items = cart.cartitem_set.all()
+    total_price = cart.total_price()
+    
+    return render(request, 'cart.html', {
+        'cart_items': cart_items,
+        'total_price': total_price
+    })
+
+@login_required
+def remove_from_cart(request, item_id):
+    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+    cart_item.delete()
+    messages.success(request, 'Товар удален из корзины')
+    return redirect('cart')
+
+@login_required
+def create_order(request):
+    cart = get_object_or_404(Cart, user=request.user)
+    cart_items = cart.cartitem_set.all()
+    
+    if not cart_items:
+        messages.warning(request, 'Ваша корзина пуста')
+        return redirect('cart')
+    
+    total_price = cart.total_price()
+    order = Order.objects.create(user=request.user, total_price=total_price)
+    
+    for item in cart_items:
+        OrderItem.objects.create(
+            order=order,
+            book=item.book,
+            quantity=item.quantity,
+            price=item.book.price
+        )
+    
+    cart_items.delete()
+    messages.success(request, 'Ваш заказ успешно оформлен!')
+    return redirect('orders')
+
+@login_required
+def orders_view(request):
+    orders = Order.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'orders.html', {'orders': orders})
 
 class BookListView(View):
     def get(self, request):

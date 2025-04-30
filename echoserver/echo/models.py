@@ -70,6 +70,9 @@ class AuthUserUserPermissions(models.Model):
         db_table = 'auth_user_user_permissions'
         unique_together = (('user', 'permission'),)
 
+# ____________________________________________________________________________________________________
+# ____________________________________________________________________________________________________
+# ____________________________________________________________________________________________________
 
 class Books(models.Model):
     name = models.CharField(max_length=40, blank=True, null=True)
@@ -95,6 +98,43 @@ class User(AbstractUser):
     
     def is_admin(self):
         return self.role == 'admin' or self.is_superuser
+    
+class Cart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def total_price(self):
+        return sum(item.total_price() for item in self.cartitem_set.all())
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
+    book = models.ForeignKey(Books, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    
+    def total_price(self):
+        return self.book.price * self.quantity
+
+class Order(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.IntegerField()
+    
+    def __str__(self):
+        return f"Order #{self.id} - {self.user.username}"
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    book = models.ForeignKey(Books, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.IntegerField()
+    
+    def total_price(self):
+        return self.price * self.quantity
+
+# ____________________________________________________________________________________________________
+# ____________________________________________________________________________________________________
+# ____________________________________________________________________________________________________
+
 
 class DjangoAdminLog(models.Model):
     action_time = models.DateTimeField()
