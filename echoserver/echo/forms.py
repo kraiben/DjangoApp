@@ -11,18 +11,20 @@ class BookForm(forms.ModelForm):
         
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
-    user_name = forms.CharField(max_length=100, label='User Name')
+    first_name = forms.CharField(max_length=100, label='User Name')
     
     class Meta:
         model = User
-        fields = ['username', 'email', 'user_name', 'password1', 'password2']
+        fields = ['username', 'email', 'first_name', 'password1', 'password2']
         labels = {
             'username': 'Login',
+            'first_name': 'Name',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].label = 'Login'
+        self.fields['first_name'].label = 'Name'
         self.fields['username'].widget.attrs.update({'placeholder': 'Enter your login'})
         self.fields['user_name'].widget.attrs.update({'placeholder': 'Enter your name'})
 
