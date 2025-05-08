@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>Личный кабинет</h1>
+    
+    <div class="profile-section">
+        <h2>Мои данные</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn-save">Сохранить изменения</button>
+        </form>
+    </div>
+    
+    <div class="profile-links">
+        <a href="{% url 'cart' %}" class="profile-link">Моя корзина</a>
+        <a href="{% url 'orders' %}" class="profile-link">Мои заказы</a>
+    </div>
+</div>
+{% endblock %}

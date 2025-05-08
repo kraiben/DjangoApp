@@ -2,7 +2,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
@@ -75,7 +74,6 @@ class AuthUserUserPermissions(models.Model):
 # ____________________________________________________________________________________________________
 # ____________________________________________________________________________________________________
 
-
 class Books(models.Model):
     name = models.CharField(max_length=40, blank=True, null=True)
     author = models.CharField(max_length=40, blank=True, null=True)
@@ -91,49 +89,45 @@ class User(AbstractUser):
         ('admin', 'Администратор'),
     )
     role = models.CharField(max_length=10, choices=ROLES, default='user')
-
+    
     class Meta:
         db_table = 'auth_user'
-
+    
     def __str__(self):
         return self.username
-
+    
     def is_admin(self):
         return self.role == 'admin' or self.is_superuser
-
-
+    
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def total_price(self):
         return sum(item.total_price() for item in self.cartitem_set.all())
-
 
 class CartItem(models.Model):
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE)
     book = models.ForeignKey(Books, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
-
+    
     def total_price(self):
         return self.book.price * self.quantity
-
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     total_price = models.IntegerField()
-
+    
     def __str__(self):
         return f"Order #{self.id} - {self.user.username}"
-
 
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     book = models.ForeignKey(Books, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.IntegerField()
-
+    
     def total_price(self):
         return self.price * self.quantity
 
@@ -148,8 +142,7 @@ class DjangoAdminLog(models.Model):
     object_repr = models.CharField(max_length=200)
     action_flag = models.PositiveSmallIntegerField()
     change_message = models.TextField()
-    content_type = models.ForeignKey(
-        'DjangoContentType', models.DO_NOTHING, blank=True, null=True)
+    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
 
     class Meta:
@@ -186,3 +179,4 @@ class DjangoSession(models.Model):
     class Meta:
         managed = False
         db_table = 'django_session'
+
