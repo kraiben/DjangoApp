@@ -1,6 +1,154 @@
 <h2>Регистрация</h2>
-<form method="post">
+<form method="post" id="register-form">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Зарегистрироваться</button>
+    <div class="form-field">
+        {{ form.username.label_tag }}
+        {{ form.username }}
+        <div id="username-error" class="error-message"></div>
+    </div>
+    <div class="form-field">
+        {{ form.email.label_tag }}
+        {{ form.email }}
+        <div id="email-error" class="error-message"></div>
+    </div>
+    <div class="form-field">
+        {{ form.first_name.label_tag }}
+        {{ form.first_name }}
+        <div id="first_name-error" class="error-message"></div>
+    </div>
+    <div class="form-field">
+        {{ form.password1.label_tag }}
+        {{ form.password1 }}
+        <div id="password1-error" class="error-message"></div>
+    </div>
+    <div class="form-field">
+        {{ form.password2.label_tag }}
+        {{ form.password2 }}
+        <div id="password2-error" class="error-message"></div>
+    </div>
+    <button type="submit" id="submit-btn" disabled>Зарегистрироваться</button>
 </form>
+
+<style>
+    .error-message {
+        color: red;
+        font-size: 0.8em;
+        margin-top: 5px;
+    }
+    .form-field {
+        margin-bottom: 15px;
+    }
+    input.invalid {
+        border: 1px solid red;
+    }
+    input.valid {
+        border: 1px solid green;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('register-form');
+    const usernameInput = document.getElementById('id_username');
+    const emailInput = document.getElementById('id_email');
+    const password1Input = document.getElementById('id_password1');
+    const password2Input = document.getElementById('id_password2');
+    const submitBtn = document.getElementById('submit-btn');
+    
+    let usernameValid = false;
+    let emailValid = false;
+    let password1Valid = false;
+    let password2Valid = false;
+    
+    // Проверка уникальности логина через AJAX
+    usernameInput.addEventListener('blur', function() {
+        const username = this.value.trim();
+        if (username.length < 3) {
+            showError('username-error', 'Логин должен содержать минимум 3 символа');
+            usernameValid = false;
+            updateSubmitButton();
+            return;
+        }
+        
+        fetch(`/check_username/?username=${encodeURIComponent(username)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    showError('username-error', 'Этот логин уже занят');
+                    usernameInput.classList.add('invalid');
+                    usernameInput.classList.remove('valid');
+                    usernameValid = false;
+                } else {
+                    clearError('username-error');
+                    usernameInput.classList.add('valid');
+                    usernameInput.classList.remove('invalid');
+                    usernameValid = true;
+                }
+                updateSubmitButton();
+            });
+    });
+    
+    // Валидация email
+    emailInput.addEventListener('input', function() {
+        const email = this.value.trim();
+        if (!email) {
+            showError('email-error', 'Введите email');
+            emailValid = false;
+        } else if (!validateEmail(email)) {
+            showError('email-error', 'Введите корректный email');
+            emailValid = false;
+        } else {
+            clearError('email-error');
+            emailValid = true;
+        }
+        updateSubmitButton();
+    });
+    
+    // Валидация пароля (минимум 6 символов)
+    password1Input.addEventListener('input', function() {
+        const password = this.value;
+        if (password.length < 6) {
+            showError('password1-error', 'Пароль должен содержать минимум 6 символов');
+            password1Valid = false;
+        } else {
+            clearError('password1-error');
+            password1Valid = true;
+        }
+        updateSubmitButton();
+    });
+    
+    // Проверка совпадения паролей
+    password2Input.addEventListener('input', function() {
+        const password1 = password1Input.value;
+        const password2 = this.value;
+        
+        if (password1 !== password2) {
+            showError('password2-error', 'Пароли не совпадают');
+            password2Valid = false;
+        } else {
+            clearError('password2-error');
+            password2Valid = true;
+        }
+        updateSubmitButton();
+    });
+    
+    function validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    }
+    
+    function showError(fieldId, message) {
+        const errorField = document.getElementById(fieldId);
+        errorField.textContent = message;
+    }
+    
+    function clearError(fieldId) {
+        const errorField = document.getElementById(fieldId);
+        errorField.textContent = '';
+    }
+    
+    function updateSubmitButton() {
+        submitBtn.disabled = !(usernameValid && emailValid && password1Valid && password2Valid);
+    }
+});
+</script>
