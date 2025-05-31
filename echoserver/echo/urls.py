@@ -4,7 +4,7 @@ from django.urls import path
 from .views import (
     BookListView, BookCreateView, BookUpdateView, BookDeleteView,
     register_view, login_view, logout_view, profile_view,
-    add_to_cart, cart_view, remove_from_cart, create_order, orders_view
+    add_to_cart, cart_view, remove_from_cart, create_order, orders_view, check_username
 )
 
 urlpatterns = [
@@ -21,4 +21,5 @@ urlpatterns = [
     path('remove-from-cart/<int:item_id>/', remove_from_cart, name='remove_from_cart'),
     path('create-order/', create_order, name='create_order'),
     path('orders/', orders_view, name='orders'),
+    path('check_username/', check_username, name='check_username'),
 ]

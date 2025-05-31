@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse
-from .models import Books, Cart, CartItem, Order, OrderItem
+from .models import Books, Cart, CartItem, Order, OrderItem, User
 from .forms import BookForm, RegisterForm, LoginForm, UserProfileForm, CartItemForm
 from django.core.paginator import Paginator
 from django.contrib.auth import login, authenticate, logout
@@ -8,6 +8,8 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.contrib import messages
+from django.db.models import Q
+from django.http import JsonResponse
 
 @login_required
 def profile_view(request):
@@ -86,15 +88,41 @@ def orders_view(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     return render(request, 'orders.html', {'orders': orders})
 
+def check_username(request):
+    username = request.GET.get('username', '')
+    exists = User.objects.filter(username__iexact=username).exists()
+    return JsonResponse({'exists': exists})
+
 class BookListView(View):
     def get(self, request):
         books_list = Books.objects.all().order_by('pk')
+        
+        # Фильтрация
+        author = request.GET.get('author')
+        if author:
+            books_list = books_list.filter(author__icontains=author)
+        
+        min_price = request.GET.get('min_price')
+        if min_price:
+            books_list = books_list.filter(price__gte=min_price)
+        
+        max_price = request.GET.get('max_price')
+        if max_price:
+            books_list = books_list.filter(price__lte=max_price)
+        
+        search = request.GET.get('search')
+        if search:
+            books_list = books_list.filter(Q(name__icontains=search) | Q(author__icontains=search))
+        
+        # Пагинация
         paginator = Paginator(books_list, 3)
         page_number = request.GET.get('page', 1)
         books = paginator.get_page(page_number)
+        
         return render(request, 'book_list.html', {
             'books': books,
-            'current_page': page_number
+            'current_page': page_number,
+            'filter_params': request.GET
         })
 
 @method_decorator(login_required, name='dispatch')

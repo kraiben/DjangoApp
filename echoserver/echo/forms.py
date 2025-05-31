@@ -3,7 +3,6 @@ from .models import Books, User, CartItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.forms import AuthenticationForm
 
-
 class BookForm(forms.ModelForm):
     class Meta:
         model = Books

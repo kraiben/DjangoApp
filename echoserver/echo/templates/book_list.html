@@ -107,7 +107,23 @@
         .login-btn {
             background-color: #28a745;
         }
-
+        .filters {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #f5f5f5;
+        border-radius: 5px;
+        }
+        .filters div {
+            margin-bottom: 10px;
+        }
+        .filters label {
+            display: inline-block;
+            width: 150px;
+        }
+        .filters input {
+            padding: 5px;
+            width: 200px;
+        }
         .login-btn:hover {
             background-color: #218838;
             transform: translateY(-1px);
@@ -200,7 +216,31 @@
             {% endfor %}
     </ul>
     {% endif %}
-
+    <div class="filters">
+        <h2>Фильтры</h2>
+        <form method="get" id="filter-form">
+            <div>
+                <label for="author">Автор:</label>
+                <input type="text" name="author" id="author" value="{{ request.GET.author }}">
+            </div>
+            <div>
+                <label for="min_price">Минимальная цена:</label>
+                <input type="number" name="min_price" id="min_price" value="{{ request.GET.min_price }}">
+            </div>
+            <div>
+                <label for="max_price">Максимальная цена:</label>
+                <input type="number" name="max_price" id="max_price" value="{{ request.GET.max_price }}">
+            </div>
+            <div>
+                <label for="search">Поиск по названию:</label>
+                <input type="text" name="search" id="search" value="{{ request.GET.search }}">
+            </div>
+            <button type="submit">Применить фильтры</button>
+            {% if request.GET %}
+                <a href="{% url 'book_list' %}">Сбросить фильтры</a>
+            {% endif %}
+        </form>
+    </div>
     <h1>Список книг</h1>
     {% if user.is_authenticated and user.is_admin %}
     <a href="{% url 'book_create' %}?page={{ books.number }}">Добавить новую книгу</a>
